@@ -1,12 +1,13 @@
-import { Box, Button, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, Paper, Typography } from "@mui/material";
+import { Alert, Box, Grid, Paper } from "@mui/material"
+import { LoginForm } from "../src/auth/LoginForm"
+import { ActionState, useAsync } from "../src/utils/useAsync"
 import NextLink from 'next/link'
 import { Link as MUILink } from "@mui/material";
-import { useState } from "react";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { AuthAPI } from "./api/auth";
+import { ErrorTypes } from "./api/base";
 
 export default function Login() {
-    const [showPassword, setShowPassword] = useState(false);
-    const handleClickShowPassword = () => setShowPassword(!showPassword);
+    const { status, execute, error } = useAsync(AuthAPI.login)
 
     return (
         <Grid container sx={{ height: '100vh', backgroundColor: "#F4F9FA" }}>
@@ -30,42 +31,30 @@ export default function Login() {
                     flexDirection: 'column',
                     alignItems: 'center',
                 }}>
-                    <Typography variant="h5">
-                        Sign in
-                    </Typography>
-                    <FormControl sx={{ mt: 2 }} fullWidth>
-                        <InputLabel>E-mail</InputLabel>
-                        <OutlinedInput
-                            id="email"
-                            label="E-mail"
-                            type="email"
-                        />
-                    </FormControl>
-                    <FormControl sx={{ mt: 2 }} fullWidth>
-                        <InputLabel>Password</InputLabel>
-                        <OutlinedInput
-                            id="password"
-                            label="Password"
-                            type={showPassword ? "text" : "password"}
-                            endAdornment={
-                                <InputAdornment position="end" variant="filled">
-                                    <IconButton
-                                        aria-label="toggle password visibility"
-                                        onClick={handleClickShowPassword}
-                                    >
-                                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                                    </IconButton>
-                                </InputAdornment>
-                            } />
-                    </FormControl>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                    >
-                        Sign In
-                    </Button>
+                    <LoginForm
+                        disabled={status === ActionState.PENDING}
+                        genericError={
+                            <>
+                                {error === ErrorTypes.UNAUTHORIZED
+                                    ? (
+                                        <Alert severity="error">Invalid login credentials.</Alert>
+                                    )
+                                    : null}
+                                {error === ErrorTypes.CONN_REFUSED
+                                    ? (
+                                        <Alert severity="error">We are having trouble reaching the server.</Alert>
+                                    )
+                                    : null}
+                                 {error === ErrorTypes.OTHER
+                                    ? (
+                                        <Alert severity="error">Something went wrong.</Alert>
+                                    )
+                                    : null}
+                            </>
+                        }
+                        onLoginRequest={execute}
+                    />
+                    
                     <Box>
                         Don't have an account?
                         <NextLink href="/signup" passHref>
@@ -75,5 +64,5 @@ export default function Login() {
                 </Box>
             </Grid>
         </Grid>
-    );
+    )
 }

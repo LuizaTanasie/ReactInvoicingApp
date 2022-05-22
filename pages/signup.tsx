@@ -1,14 +1,14 @@
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { Box, Button, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, Paper, Typography } from "@mui/material";
-import { useState } from "react";
+import { Alert, Box, Grid, Paper } from "@mui/material";
+
 import NextLink from 'next/link'
 import { Link as MUILink } from "@mui/material";
+import { SignUpForm } from "../src/auth/SignUpForm";
+import { AuthAPI } from "./api/auth";
+import { ErrorTypes } from "./api/base";
+import { ActionState, useAsync } from "../src/utils/useAsync"
 
 export default function SignUp() {
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmationPassword, setShowConfirmationPassword] = useState(false);
-    const handleClickShowPassword = (isConfirmation: boolean) =>
-        isConfirmation ? setShowConfirmationPassword(!showConfirmationPassword) : setShowPassword(!showPassword);
+    const { status, execute, error } = useAsync(AuthAPI.signUp)
 
     return (
         <Grid container sx={{ height: '100vh', backgroundColor: "#F4F9FA" }}>
@@ -33,67 +33,24 @@ export default function SignUp() {
                     flexDirection: 'column',
                     alignItems: 'center',
                 }}>
-                    <Typography variant="h5">
-                        Sign up
-                    </Typography>
-                    <FormControl sx={{ mt: 2 }} fullWidth>
-                        <InputLabel>Name</InputLabel>
-                        <OutlinedInput
-                            id="name"
-                            label="Name"
-                            type="text"
-                        />
-                    </FormControl>
-                    <FormControl sx={{ mt: 2 }} fullWidth>
-                        <InputLabel>E-mail</InputLabel>
-                        <OutlinedInput
-                            id="email"
-                            label="E-mail"
-                            type="email"
-                        />
-                    </FormControl>
-                    <FormControl sx={{ mt: 2 }} fullWidth>
-                        <InputLabel>Password</InputLabel>
-                        <OutlinedInput
-                            id="password"
-                            label="Password"
-                            type={showPassword ? "text" : "password"}
-                            endAdornment={
-                                <InputAdornment position="end" variant="filled">
-                                    <IconButton
-                                        aria-label="toggle password visibility"
-                                        onClick={() => handleClickShowPassword(false)}
-                                    >
-                                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                                    </IconButton>
-                                </InputAdornment>
-                            } />
-                    </FormControl>
-                    <FormControl sx={{ mt: 2 }} fullWidth>
-                        <InputLabel>Confirm password</InputLabel>
-                        <OutlinedInput
-                            id="confirm-password"
-                            label="Confirm password"
-                            type={showConfirmationPassword ? "text" : "password"}
-                            endAdornment={
-                                <InputAdornment position="end" variant="filled">
-                                    <IconButton
-                                        aria-label="toggle password visibility"
-                                        onClick={() => handleClickShowPassword(true)}
-                                    >
-                                        {showConfirmationPassword ? <Visibility /> : <VisibilityOff />}
-                                    </IconButton>
-                                </InputAdornment>
-                            } />
-                    </FormControl>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                    >
-                        Sign Up
-                    </Button>
+                    <SignUpForm
+                        disabled={status === ActionState.PENDING}
+                        genericError={
+                            <>
+                                {error === ErrorTypes.CONN_REFUSED
+                                    ? (
+                                        <Alert severity="error">We are having trouble reaching the server.</Alert>
+                                    )
+                                    : null}
+                                {error === ErrorTypes.OTHER
+                                    ? (
+                                        <Alert severity="error">Something went wrong.</Alert>
+                                    )
+                                    : null}
+                            </>
+                        }
+                        onSignUpRequest={execute}
+                    />
 
                     <Box>
                         Already have an account?
