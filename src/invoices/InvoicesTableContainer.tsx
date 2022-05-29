@@ -1,7 +1,7 @@
 import { Alert, CircularProgress } from "@mui/material";
 import { useEffect } from "react";
-import { ErrorTypes } from "../../pages/api/base";
-import { InvoicesAPI } from "../../pages/api/invoices";
+import { ErrorTypes } from "../api/base";
+import { InvoicesAPI } from "../api/invoices";
 import { ActionState, useAsync } from "../utils/useAsync";
 import { InvoicesTable } from "./InvociesTable";
 
@@ -20,12 +20,6 @@ export const InvoicesTableContainer = () => {
 
     if (status === ActionState.ERROR) {
         return <>
-            {error === ErrorTypes.UNAUTHORIZED
-                ? (
-                    <Alert severity="error">You are not authorized to see this resource.</Alert>
-                )
-                : null}
-
             {
                 error === ErrorTypes.CONN_REFUSED
                     ? (

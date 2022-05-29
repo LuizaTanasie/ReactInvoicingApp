@@ -1,7 +1,7 @@
 import { Alert, CircularProgress } from "@mui/material";
 import { useEffect } from "react";
-import { ErrorTypes } from "../../pages/api/base";
-import { ClientsAPI } from "../../pages/api/clients";
+import { ErrorTypes } from "../api/base";
+import { ClientsAPI } from "../api/clients";
 import { ActionState, useAsync } from "../utils/useAsync";
 import { ClientsTable } from "./ClientsTable";
 
@@ -20,12 +20,6 @@ export const ClientsTableContainer = () => {
 
     if (status === ActionState.ERROR) {
         return <>
-            {error === ErrorTypes.UNAUTHORIZED
-                ? (
-                    <Alert severity="error">You are not authorized to see this resource.</Alert>
-                )
-                : null}
-
             {
                 error === ErrorTypes.CONN_REFUSED
                     ? (
